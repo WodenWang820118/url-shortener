@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "start:producer": "pnpm --filter producer start",
-    "start:broker": "pnpm --filter broker start",
+    "start:kafka-manager": "pnpm --filter kafka-manager start",
     "start:consumer": "pnpm --filter consumer start"
   },
   "keywords": [],
