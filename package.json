@@ -1,10 +1,11 @@
 {
-  "name": "nest-kafka",
+  "name": "kafka-nest",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:producer": "pnpm --filter producer start",
+    "start:broker": "pnpm --filter broker start",
+    "start:consumer": "pnpm --filter consumer start"
   },
   "keywords": [],
   "author": "",
