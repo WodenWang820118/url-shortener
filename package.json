@@ -5,6 +5,7 @@
   "scripts": {
     "dev:producer": "pnpm --filter producer start --watch",
     "dev:kafka-manager": "pnpm --filter kafka-manager start --watch",
+    "dev:kafka-admin": "pnpm --filter kafka-admin start --watch",
     "dev:consumer": "pnpm --filter consumer start --watch"
   },
   "keywords": [],

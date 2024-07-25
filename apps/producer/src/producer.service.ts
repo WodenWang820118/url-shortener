@@ -1,5 +1,6 @@
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class ProducerService implements OnModuleInit {
@@ -15,7 +16,7 @@ export class ProducerService implements OnModuleInit {
     await this.kafkaClient.connect();
   }
 
-  // sendMessage(message: any) {
-  //   return this.kafkaClient.send('hero.kill.dragon', message);
-  // }
+  sendMessage(topic: string, message: any): Observable<any> {
+    return this.kafkaClient.emit(topic, message);
+  }
 }

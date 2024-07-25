@@ -6,23 +6,14 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 export class ProducerController {
   constructor(private readonly producerService: ProducerService) {}
 
-  @MessagePattern('hero.kill.dragon')
-  killDragon(@Payload() message: any): any {
-    const realm = 'Nest';
-    const heroId = message.heroId;
-    const dragonId = message.dragonId;
+  @Post('send-message')
+  sendMessage(@Body() body: { topic: string; message: any }) {
+    return this.producerService.sendMessage(body.topic, body.message);
+  }
 
-    const items = [
-      { id: 1, name: 'Mythical Sword' },
-      { id: 2, name: 'Key to Dungeon' },
-    ];
-
-    return {
-      headers: {
-        realm,
-      },
-      key: heroId,
-      value: items,
-    };
+  @MessagePattern('topic-name')
+  handleMessage(@Payload() message: any) {
+    console.log('Received message:', message);
+    // Process the message
   }
 }
