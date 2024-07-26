@@ -4,14 +4,11 @@ import {
   OnModuleDestroy,
   Logger,
 } from '@nestjs/common';
-import { ZookeeperServerService } from '../zookeeper-server/zookeeper-server.service';
 import ZooKeeper from 'zookeeper';
 
 @Injectable()
 export class ZookeeperClientService implements OnModuleInit, OnModuleDestroy {
   private client: ZooKeeper;
-
-  constructor(private zookeeperServerService: ZookeeperServerService) {}
 
   async onModuleInit() {
     await this.connect();

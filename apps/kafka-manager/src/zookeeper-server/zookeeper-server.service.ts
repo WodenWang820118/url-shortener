@@ -13,10 +13,14 @@ const execAsync = promisify(exec);
 @Injectable()
 export class ZookeeperServerService implements OnModuleInit, OnModuleDestroy {
   private readonly KAFKA_PATH: string;
+  private readonly ZOO_KEEPER_SCRIPTS_PATH: string;
   private readonly ZOO_KEEPER_LOGS_PATH: string;
 
   constructor(private configService: ConfigService) {
     this.KAFKA_PATH = this.configService.get<string>('KAFKA_PATH');
+    this.ZOO_KEEPER_SCRIPTS_PATH = this.configService.get<string>(
+      'ZOO_KEEPER_SCRIPTS_PATH',
+    );
     this.ZOO_KEEPER_LOGS_PATH = this.configService.get<string>(
       'ZOO_KEEPER_LOGS_PATH',
     );
@@ -34,7 +38,7 @@ export class ZookeeperServerService implements OnModuleInit, OnModuleDestroy {
   private async startZooKeeper() {
     try {
       const { stdout, stderr } = await execAsync(
-        `${this.KAFKA_PATH}/bin/windows/zookeeper-server-start.bat ${this.KAFKA_PATH}/config/zookeeper.properties`,
+        `${this.KAFKA_PATH}/${this.ZOO_KEEPER_SCRIPTS_PATH} ${this.KAFKA_PATH}/config/zookeeper.properties`,
       );
       if (stderr) {
         Logger.error(`ZooKeeper stderr: ${stderr}`);

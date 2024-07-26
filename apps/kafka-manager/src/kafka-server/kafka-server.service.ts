@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { exec } from 'child_process';
-import { ZookeeperServerService } from '../zookeeper-server/zookeeper-server.service';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
@@ -15,13 +14,13 @@ const execAsync = promisify(exec);
 export class KafkaServerService implements OnModuleInit, OnModuleDestroy {
   private readonly KAFKA_PATH: string;
   private readonly KAFKA_LOGS_PATH: string;
+  private readonly KAFKA_SCRIPTS_PATH: string;
 
-  constructor(
-    private configService: ConfigService,
-    private zookeeperServerService: ZookeeperServerService,
-  ) {
+  constructor(private configService: ConfigService) {
     this.KAFKA_PATH = this.configService.get<string>('KAFKA_PATH');
     this.KAFKA_LOGS_PATH = this.configService.get<string>('KAFKA_LOGS_PATH');
+    this.KAFKA_SCRIPTS_PATH =
+      this.configService.get<string>('KAFKA_SCRIPTS_PATH');
   }
 
   async onModuleInit() {
@@ -37,7 +36,7 @@ export class KafkaServerService implements OnModuleInit, OnModuleDestroy {
   private async startKafkaBroker() {
     try {
       const { stdout, stderr } = await execAsync(
-        `${this.KAFKA_PATH}/bin/windows/kafka-server-start.bat ${this.KAFKA_PATH}/config/server.properties`,
+        `${this.KAFKA_PATH}/${this.KAFKA_SCRIPTS_PATH} ${this.KAFKA_PATH}/config/server.properties`,
       );
       if (stderr) {
         Logger.error(`Kafka broker stderr: ${stderr}`);

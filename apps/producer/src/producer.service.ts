@@ -1,22 +1,36 @@
-import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
-import { ClientKafka } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Kafka, Producer } from 'kafkajs';
 
 @Injectable()
-export class ProducerService implements OnModuleInit {
-  // see the corresponding client avaiable in the module.ts file
-  constructor(
-    @Inject('HERO_SERVICE') private readonly kafkaClient: ClientKafka,
-  ) {}
+export class ProducerService implements OnModuleInit, OnModuleDestroy {
+  private readonly kafkaInstance: Kafka;
+  private producer: Producer;
 
-  async onModuleInit() {
-    // Need to subscribe to topic
-    // so that we can get the response from Kafka microservice
-    this.kafkaClient.subscribeToResponseOf('hero.kill.dragon');
-    await this.kafkaClient.connect();
+  constructor() {
+    this.kafkaInstance = new Kafka({
+      clientId: 'producer',
+      brokers: ['localhost:9092'],
+      connectionTimeout: 3000,
+    });
+
+    this.producer = this.kafkaInstance.producer();
   }
 
-  sendMessage(topic: string, message: any): Observable<any> {
-    return this.kafkaClient.emit(topic, message);
+  async onModuleInit() {
+    // Connect when the module initializes
+    await this.producer.connect();
+  }
+
+  async onModuleDestroy() {
+    // Disconnect when the module is destroyed
+    await this.producer.disconnect();
+  }
+
+  async publish(message: any): Promise<void> {
+    // No need to connect here, as we're already connected
+    await this.producer.send({
+      topic: 'my-kafka-topic',
+      messages: [{ value: JSON.stringify(message) }],
+    });
   }
 }
