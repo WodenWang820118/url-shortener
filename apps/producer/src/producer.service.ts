@@ -26,10 +26,10 @@ export class ProducerService implements OnModuleInit, OnModuleDestroy {
     await this.producer.disconnect();
   }
 
-  async publish(message: any): Promise<void> {
+  async publish(topic: string, message: any) {
     // No need to connect here, as we're already connected
-    await this.producer.send({
-      topic: 'my-kafka-topic',
+    return await this.producer.send({
+      topic: topic,
       messages: [{ value: JSON.stringify(message) }],
     });
   }

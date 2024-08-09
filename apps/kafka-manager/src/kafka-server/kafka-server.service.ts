@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { exec } from 'child_process';
+import { rmSync } from 'fs';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
@@ -50,13 +51,8 @@ export class KafkaServerService implements OnModuleInit, OnModuleDestroy {
 
   private async cleanupKafkaLogs() {
     try {
-      const { stdout, stderr } = await execAsync(
-        `if exist "${this.KAFKA_LOGS_PATH}\\*" (for /d %i in ("${this.KAFKA_LOGS_PATH}\\*") do @rmdir /s /q "%i" & del /q "${this.KAFKA_LOGS_PATH}\\*")`,
-      );
-      if (stderr) {
-        Logger.error(`Kafka logs cleanup stderr: ${stderr}`);
-      }
-      Logger.log(`Kafka logs cleanup successfully: ${stdout}`);
+      rmSync(this.KAFKA_LOGS_PATH, { recursive: true, force: true });
+      Logger.log('Kafka logs cleaned up');
     } catch (error) {
       Logger.error(`Error cleaning up Kafka logs: ${error.message}`);
     }

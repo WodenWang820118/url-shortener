@@ -1,12 +1,12 @@
-import { Controller, Param, Post } from '@nestjs/common';
+import { Body, Controller, Logger, Param, Post } from '@nestjs/common';
 import { ProducerService } from './producer.service';
 
 @Controller('producer')
 export class ProducerController {
   constructor(private readonly producerService: ProducerService) {}
 
-  @Post(':message')
-  sendMessage(@Param() name: string) {
-    return this.producerService.publish(name);
+  @Post(':topic')
+  async sendMessage(@Param('topic') topic: string, @Body() message: any) {
+    return await this.producerService.publish(topic, message);
   }
 }

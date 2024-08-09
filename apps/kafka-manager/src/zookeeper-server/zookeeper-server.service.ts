@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { exec } from 'child_process';
+import { rmSync } from 'fs';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
@@ -52,13 +53,8 @@ export class ZookeeperServerService implements OnModuleInit, OnModuleDestroy {
 
   private async cleanupZookeepperLogs() {
     try {
-      const { stdout, stderr } = await execAsync(
-        `if exist "${this.ZOO_KEEPER_LOGS_PATH}\\*" (for /d %i in ("${this.ZOO_KEEPER_LOGS_PATH}\\*") do @rmdir /s /q "%i" & del /q "${this.ZOO_KEEPER_LOGS_PATH}\\*")`,
-      );
-      if (stderr) {
-        Logger.error(`Zookeeper logs cleanup stderr: ${stderr}`);
-      }
-      Logger.log(`Zookeeper logs cleanup successfully: ${stdout}`);
+      rmSync(this.ZOO_KEEPER_LOGS_PATH, { recursive: true, force: true });
+      Logger.log(`Zookeeper logs cleanup successfully`);
     } catch (error) {
       Logger.error(`Error cleaning up Zookeeper logs: ${error.message}`);
     }

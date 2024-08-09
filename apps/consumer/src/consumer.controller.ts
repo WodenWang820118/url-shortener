@@ -1,14 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { ConsumerService } from './consumer.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
-@Controller('consumer')
+@Controller()
 export class ConsumerController {
   constructor(private readonly consumerService: ConsumerService) {}
 
-  @MessagePattern('topic-name')
-  handleMessage(@Payload() message: any) {
-    console.log('Received message:', message);
+  @MessagePattern('example_topic')
+  async handleMessage(@Payload() message: any) {
+    return await this.consumerService.processMessage(message);
     // Process the message
   }
 }

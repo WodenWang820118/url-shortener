@@ -13,15 +13,15 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     }),
     ClientsModule.register([
       {
-        name: 'HERO_SERVICE',
+        name: 'EXAMPLE_SERVICE',
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'hero',
+            clientId: 'example-consumer',
             brokers: ['localhost:9092'],
           },
           consumer: {
-            groupId: 'hero-consumer',
+            groupId: 'example-consumer',
           },
         },
       },
