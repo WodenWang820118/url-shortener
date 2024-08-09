@@ -44,4 +44,18 @@ export class KafkaAdminService implements OnModuleInit, OnModuleDestroy {
       console.log(`Topic ${topic} already exists`);
     }
   }
+
+  async getTopics(): Promise<string[]> {
+    return this.admin.listTopics();
+  }
+
+  async deleteTopic(topic: string): Promise<void> {
+    const topics = await this.admin.listTopics();
+    if (topics.includes(topic)) {
+      await this.admin.deleteTopics({ topics: [topic] });
+      console.log(`Topic ${topic} deleted successfully`);
+    } else {
+      console.log(`Topic ${topic} does not exist`);
+    }
+  }
 }
