@@ -13,9 +13,9 @@ const execAsync = promisify(exec);
 
 @Injectable()
 export class ZookeeperServerService implements OnModuleInit, OnModuleDestroy {
-  private readonly KAFKA_PATH: string;
-  private readonly ZOO_KEEPER_SCRIPTS_PATH: string;
-  private readonly ZOO_KEEPER_LOGS_PATH: string;
+  private readonly KAFKA_PATH: string; // e.g, D:\Apache\kafka_2.13-3.7.1
+  private readonly ZOO_KEEPER_SCRIPTS_PATH: string; // e.g., bin\windows\zookeeper-server-start.bat
+  private readonly ZOO_KEEPER_LOGS_PATH: string; // e.g., D:\tmp\zookeeper\version-2
 
   constructor(private configService: ConfigService) {
     this.KAFKA_PATH = this.configService.get<string>('KAFKA_PATH');
