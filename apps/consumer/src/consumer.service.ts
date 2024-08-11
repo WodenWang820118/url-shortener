@@ -11,6 +11,7 @@ export class ConsumerService implements OnModuleInit {
   async onModuleInit() {
     // Need to subscribe to topic
     // so that we can get the response from Kafka microservice
+    // The topic will be automatically created if it doesn't exist
     this.kafkaClient.subscribeToResponseOf('example_topic');
     await this.kafkaClient.connect();
     Logger.log('Connected to Kafka');

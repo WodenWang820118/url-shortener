@@ -13,9 +13,9 @@ const execAsync = promisify(exec);
 
 @Injectable()
 export class KafkaServerService implements OnModuleInit, OnModuleDestroy {
-  private readonly KAFKA_PATH: string;
-  private readonly KAFKA_LOGS_PATH: string;
-  private readonly KAFKA_SCRIPTS_PATH: string;
+  private readonly KAFKA_PATH: string; //e.g., D:\Apache\kafka_2.13-3.7.1
+  private readonly KAFKA_LOGS_PATH: string; // e.g., D:\tmp\kafka-logs
+  private readonly KAFKA_SCRIPTS_PATH: string; // e.g., bin\windows\kafka-server-start.bat
 
   constructor(private configService: ConfigService) {
     this.KAFKA_PATH = this.configService.get<string>('KAFKA_PATH');

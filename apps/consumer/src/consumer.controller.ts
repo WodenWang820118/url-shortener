@@ -9,6 +9,5 @@ export class ConsumerController {
   @MessagePattern('example_topic')
   async handleMessage(@Payload() message: any) {
     return await this.consumerService.processMessage(message);
-    // Process the message
   }
 }
