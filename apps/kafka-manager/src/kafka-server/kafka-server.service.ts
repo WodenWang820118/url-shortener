@@ -7,9 +7,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { exec } from 'child_process';
 import { rmSync } from 'fs';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
 
 @Injectable()
 export class KafkaServerService implements OnModuleInit, OnModuleDestroy {
@@ -26,47 +23,57 @@ export class KafkaServerService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     await this.cleanupKafkaLogs();
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-    await this.startKafkaBroker();
+    await new Promise((resolve) => setTimeout(resolve, 4000));
+    this.startKafkaBroker();
   }
 
   async onModuleDestroy() {
-    await this.stopKafkaBroker();
+    this.stopKafkaBroker();
   }
 
-  private async startKafkaBroker() {
+  private startKafkaBroker() {
     try {
-      const { stdout, stderr } = await execAsync(
-        `${this.KAFKA_PATH}/${this.KAFKA_SCRIPTS_PATH} ${this.KAFKA_PATH}/config/server.properties`,
-      );
-      if (stderr) {
-        Logger.error(`Kafka broker stderr: ${stderr}`);
+      try {
+        const { stdout, stderr } = exec(
+          `${this.KAFKA_PATH}/${this.KAFKA_SCRIPTS_PATH} ${this.KAFKA_PATH}/config/server.properties`,
+        );
+        if (stderr) {
+          Logger.error(
+            `${JSON.stringify(stderr, null, 2)}`,
+            KafkaServerService.name,
+          );
+        }
+        Logger.log(
+          `${JSON.stringify(stdout, null, 2)}`,
+          KafkaServerService.name,
+        );
+      } catch (error) {
+        Logger.error(`Error starting Kafka broker: ${error.message}`);
+        // Consider implementing a retry mechanism here
       }
-      Logger.log(`Kafka broker stdout: ${stdout}`);
     } catch (error) {
-      Logger.error(`Error starting Kafka broker: ${error.message}`);
-      // Consider implementing a retry mechanism here
+      console.error(`Error starting Kafka broker: ${error.message}`);
     }
   }
 
   private async cleanupKafkaLogs() {
     try {
       rmSync(this.KAFKA_LOGS_PATH, { recursive: true, force: true });
-      Logger.log('Kafka logs cleaned up');
+      Logger.log('Kafka logs cleaned up', KafkaServerService.name);
     } catch (error) {
       Logger.error(`Error cleaning up Kafka logs: ${error.message}`);
     }
   }
 
-  private async stopKafkaBroker() {
+  private stopKafkaBroker() {
     try {
-      const { stdout, stderr } = await execAsync(
+      const { stdout, stderr } = exec(
         `${this.KAFKA_PATH}/bin/windows/kafka-server-stop.bat`,
       );
       if (stderr) {
-        Logger.error(`Kafka broker stderr: ${stderr}`);
+        Logger.error(`Kafka broker stderr: ${JSON.stringify(stderr, null, 2)}`);
       }
-      Logger.log(`Kafka broker stdout: ${stdout}`);
+      Logger.log(`Kafka broker stdout: ${JSON.stringify(stdout, null, 2)}`);
     } catch (error) {
       Logger.error(`Error stopping Kafka broker: ${error.message}`);
     }

@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { join } from 'path';
-import { KafkaServerService } from './kafka-server/kafka-server.service';
-import { ZookeeperClientService } from './zookeeper-client/zookeeper-client.service';
-import { ZookeeperServerService } from './zookeeper-server/zookeeper-server.service';
 import { TerminusModule } from '@nestjs/terminus';
+import { ZookeeperServerModule } from './zookeeper-server/zookeeper-server.module';
+import { KafkaServerModule } from './kafka-server/kafka-server.module';
+import { KafkaAdminModule } from './kafka-admin/kafka-admin.module';
 
 @Module({
   imports: [
+    ZookeeperServerModule,
+    KafkaServerModule,
+    KafkaAdminModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: join('../', '../.env'),
@@ -15,10 +18,6 @@ import { TerminusModule } from '@nestjs/terminus';
     TerminusModule,
   ],
   controllers: [],
-  providers: [
-    ZookeeperServerService,
-    KafkaServerService,
-    ZookeeperClientService,
-  ],
+  providers: [],
 })
 export class KafkaManagerModule {}

@@ -7,9 +7,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { exec } from 'child_process';
 import { rmSync } from 'fs';
-import { promisify } from 'util';
-
-const execAsync = promisify(exec);
 
 @Injectable()
 export class ZookeeperServerService implements OnModuleInit, OnModuleDestroy {
@@ -29,22 +26,28 @@ export class ZookeeperServerService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleInit() {
     await this.cleanupZookeepperLogs();
-    await this.startZooKeeper();
+    this.startZooKeeper();
   }
 
   async onModuleDestroy() {
-    await this.stopZooKeeper();
+    this.stopZooKeeper();
   }
 
-  private async startZooKeeper() {
+  private startZooKeeper() {
     try {
-      const { stdout, stderr } = await execAsync(
+      const { stdout, stderr } = exec(
         `${this.KAFKA_PATH}/${this.ZOO_KEEPER_SCRIPTS_PATH} ${this.KAFKA_PATH}/config/zookeeper.properties`,
       );
       if (stderr) {
-        Logger.error(`ZooKeeper stderr: ${stderr}`);
+        Logger.error(
+          `${JSON.stringify(stderr, null, 2)}`,
+          ZookeeperServerService.name,
+        );
       }
-      Logger.log(`ZooKeeper stdout: ${stdout}`);
+      Logger.log(
+        `${JSON.stringify(stdout, null, 2)}`,
+        ZookeeperServerService.name,
+      );
     } catch (error) {
       Logger.error(`Error starting ZooKeeper: ${error.message}`);
       // Consider implementing a retry mechanism here
@@ -54,15 +57,15 @@ export class ZookeeperServerService implements OnModuleInit, OnModuleDestroy {
   private async cleanupZookeepperLogs() {
     try {
       rmSync(this.ZOO_KEEPER_LOGS_PATH, { recursive: true, force: true });
-      Logger.log(`Zookeeper logs cleanup successfully`);
+      Logger.log(`Zookeeper logs cleaned up`, ZookeeperServerService.name);
     } catch (error) {
       Logger.error(`Error cleaning up Zookeeper logs: ${error.message}`);
     }
   }
 
-  private async stopZooKeeper() {
+  private stopZooKeeper() {
     try {
-      const { stdout, stderr } = await execAsync(
+      const { stdout, stderr } = exec(
         `${this.KAFKA_PATH}/bin/windows/zookeeper-server-stop.bat`,
       );
       if (stderr) {

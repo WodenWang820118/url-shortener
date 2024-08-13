@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Delete, Param } from '@nestjs/common';
 import { KafkaAdminService } from './kafka-admin.service';
 
 @Controller('kafka-admin')
@@ -22,6 +22,16 @@ export class KafkaAdminController {
   @Get('topics')
   async getTopics() {
     return this.kafkaAdminService.getTopics();
+  }
+
+  @Get('topic-metadata/:topicName')
+  async getTopicMetadata(@Param('topicName') topicName: string) {
+    return this.kafkaAdminService.getTopicMetadata(topicName);
+  }
+
+  @Get('topic-partition-counts/:topicName')
+  async getTopicPartitionCounts(@Param('topicName') topicName: string) {
+    return await this.kafkaAdminService.getTopicPartitionCounts(topicName);
   }
 
   // FIXME: delete topic will cause seed broker to crash and can't be recovered
