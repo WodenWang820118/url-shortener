@@ -2,9 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConsumerController } from './consumer.controller';
 import { ConsumerService } from './consumer.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { HdfsModule } from './hdfs/hdfs.module';
+import { CassandraModule } from './cassandra/cassandra.module';
+import { CassandraService } from './cassandra/cassandra.service';
 
 @Module({
   imports: [
+    HdfsModule,
+    CassandraModule,
     ClientsModule.register([
       {
         name: 'EXAMPLE_SERVICE',
@@ -22,6 +27,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ]),
   ],
   controllers: [ConsumerController],
-  providers: [ConsumerService],
+  providers: [ConsumerService, CassandraService],
 })
 export class ConsumerModule {}

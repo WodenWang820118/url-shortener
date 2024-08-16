@@ -19,6 +19,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/terminus": "^10.2.3",
     "axios": "^1.7.2",
+    "cassandra-driver": "^4.7.2",
     "kafkajs": "^2.2.4",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
