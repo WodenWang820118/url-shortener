@@ -5,6 +5,6 @@ import { MicroserviceOptions } from '@nestjs/microservices';
 async function bootstrap() {
   const app = await NestFactory.create(KafkaManagerModule);
   app.connectMicroservice<MicroserviceOptions>({});
-  await app.listen(9000);
+  await app.listen(3000);
 }
 bootstrap();
