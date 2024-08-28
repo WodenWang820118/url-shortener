@@ -5,7 +5,7 @@ import { CassandraService } from './cassandra/cassandra.service';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit {
-  // see the corresponding client avaiable in the module.ts file
+  // see the corresponding client available in the module.ts file
   constructor(
     @Inject('EXAMPLE_SERVICE') private readonly kafkaClient: ClientKafka,
     private readonly hdfsService: HdfsService,
@@ -13,9 +13,9 @@ export class ConsumerService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    // Need to subscribe to topic
-    // so that we can get the response from Kafka microservice
-    // The topic will be automatically created if it doesn't exist
+    // need to subscribe to a topic
+    // so that we can get the response from the Kafka microservice
+    // the topic will be automatically created if it doesn't exist
     this.kafkaClient.subscribeToResponseOf('example_topic');
     await this.kafkaClient.connect();
   }
@@ -27,15 +27,15 @@ export class ConsumerService implements OnModuleInit {
 
       Logger.log(
         'url_id: ' + url_id,
-        ConsumerService.prototype.processMessage.name,
+        `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
       );
       Logger.log(
         'original_url: ' + original_url,
-        ConsumerService.prototype.processMessage.name,
+        `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
       );
       Logger.log(
         'createdAt: ' + created_at,
-        ConsumerService.prototype.processMessage.name,
+        `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
       );
 
       await this.cassandraService.execute(
@@ -44,7 +44,10 @@ export class ConsumerService implements OnModuleInit {
       );
       return 'Message processed';
     } catch (error) {
-      Logger.error('Error processing message', error);
+      Logger.error(
+        error,
+        `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
+      );
       throw error;
     }
   }

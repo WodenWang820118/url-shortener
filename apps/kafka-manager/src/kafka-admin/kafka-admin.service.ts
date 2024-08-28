@@ -23,7 +23,6 @@ export class KafkaAdminService
   }
 
   async onApplicationBootstrap() {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
     await this.admin.connect();
     await this.createTopics();
   }
@@ -42,28 +41,33 @@ export class KafkaAdminService
       await this.admin.createTopics({
         topics: [{ topic, numPartitions, replicationFactor }],
       });
-      console.log(`Topic ${topic} created successfully`);
+      Logger.log(
+        `Topic ${topic} created successfully`,
+        `${KafkaAdminService.name}.${KafkaAdminService.prototype.createTopic.name}`,
+      );
     } else {
-      console.log(`Topic ${topic} already exists`);
+      Logger.log(
+        `Topic ${topic} already exists`,
+        `${KafkaAdminService.name}.${KafkaAdminService.prototype.createTopic.name}`,
+      );
     }
   }
 
   async createTopics() {
     try {
-      Logger.log('Creating topics...');
-      await this.admin.connect();
-      await this.admin.createTopics({
-        topics: [
-          {
-            topic: this.configService.get<string>('KAFKA_TOPIC'),
-            numPartitions: this.configService.get<number>('KAFKA_PARTITIONS'),
-            replicationFactor: 1,
-          },
-        ],
-      });
-      console.log('Topics created successfully');
+      Logger.log(
+        'Creating default topics...',
+        `${KafkaAdminService.name}.${KafkaAdminService.prototype.createTopic.name}`,
+      );
+      await this.createTopic(
+        this.configService.get<string>('KAFKA_TOPIC'),
+        this.configService.get<number>('KAFKA_PARTITIONS'),
+      );
     } catch (error) {
-      console.error('Error creating topics:', error);
+      Logger.error(
+        error,
+        `${KafkaAdminService.name}.${KafkaAdminService.prototype.createTopic.name}`,
+      );
     }
   }
 
@@ -85,8 +89,8 @@ export class KafkaAdminService
       }
     } catch (error) {
       Logger.error(
-        `Error getting partition count for topic ${topicName}:`,
         error,
+        `${KafkaAdminService.name}.${KafkaAdminService.prototype.getTopicMetadata.name}`,
       );
     }
   }
@@ -100,9 +104,15 @@ export class KafkaAdminService
     const topics = await this.admin.listTopics();
     if (topics.includes(topic)) {
       await this.admin.deleteTopics({ topics: [topic] });
-      console.log(`Topic ${topic} deleted successfully`);
+      Logger.log(
+        `Topic ${topic} deleted successfully`,
+        `${KafkaAdminService.name}.${KafkaAdminService.prototype.deleteTopic.name}`,
+      );
     } else {
-      console.log(`Topic ${topic} does not exist`);
+      Logger.log(
+        `Topic ${topic} does not exist`,
+        `${KafkaAdminService.name}.${KafkaAdminService.prototype.deleteTopic.name}`,
+      );
     }
   }
 }

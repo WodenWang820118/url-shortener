@@ -10,8 +10,11 @@ export class HdfsService {
   private baseUrl = 'http://localhost:9870/webhdfs/v1/home/guanxinwang';
 
   async writeFile(path: string, data: any) {
-    Logger.log(`Writing to HDFS: ${path}`);
-    Logger.log(JSON.stringify(data));
+    Logger.log(
+      `Writing to HDFS: ${path}`,
+      `${HdfsService.name}.${HdfsService.prototype.writeFile.name}`,
+    );
+    Logger.log(JSON.stringify(data, null, 2));
     const url = `${this.baseUrl}${path}?op=CREATE&overwrite=true`;
 
     // First, send a PUT request to create the file
@@ -25,7 +28,10 @@ export class HdfsService {
     // Get the redirect URL
     const responseeUrl = response.headers.location;
     const dataNodeUrl = this.replaceHostname(responseeUrl, 'localhost');
-    Logger.log(dataNodeUrl);
+    Logger.log(
+      dataNodeUrl,
+      `${HdfsService.name}.${HdfsService.prototype.writeFile.name}`,
+    );
 
     // Send the actual data to the DataNode
     await firstValueFrom(

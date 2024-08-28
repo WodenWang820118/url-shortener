@@ -24,7 +24,7 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       Logger.error(
         `Failed to connect to Cassandra: ${error.message}`,
-        CassandraService.name,
+        `${CassandraService.name}.${CassandraService.prototype.onModuleInit.name}`,
       );
       throw error;
     }
@@ -32,7 +32,6 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy() {
     await this.client.shutdown();
-    Logger.log('Disconnected from Cassandra', CassandraService.name);
   }
 
   private async connect() {
@@ -55,7 +54,7 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       Logger.error(
         `Query execution error: ${error.message}`,
-        CassandraService.name,
+        `${CassandraService.name}.${CassandraService.prototype.execute.name}`,
       );
       throw error;
     }
