@@ -36,3 +36,7 @@ lerna-debug.log*
 
 # Secrets
 .env
+
+
+.nx/cache
+.nx/workspace-data
