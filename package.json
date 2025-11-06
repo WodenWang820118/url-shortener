@@ -11,6 +11,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@analogjs/platform": "^2.0.2",
+    "@analogjs/vitest-angular": "^2.0.2",
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.1.8",
     "@nestjs/config": "^4.0.2",
