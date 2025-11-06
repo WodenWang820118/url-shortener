@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: consumer
-          image: url-shortener-consumer:latest
+          image: url-shortener-consumer:v1.0.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3002
@@ -28,9 +28,9 @@ spec:
               protocol: TCP
           env:
             - name: KAFKA_BROKER
-              value: 'kafka:9093'
+              value: 'host.docker.internal:9092'
             - name: CASSANDRA_CONTACT_POINTS
-              value: 'cassandra'
+              value: 'host.docker.internal'
             - name: CASSANDRA_LOCAL_DATA_CENTER
               value: 'datacenter1'
           resources:

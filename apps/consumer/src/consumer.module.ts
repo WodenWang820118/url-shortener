@@ -19,7 +19,7 @@ import { MetricsModule } from './metrics/metrics.module';
         options: {
           client: {
             clientId: 'example-consumer',
-            brokers: ['localhost:9092'],
+            brokers: [process.env['KAFKA_BROKER'] || 'localhost:9092'],
           },
           consumer: {
             groupId: 'example-consumer-group',

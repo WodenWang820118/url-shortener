@@ -12,8 +12,9 @@ export class CassandraService implements OnModuleInit, OnModuleDestroy {
 
   constructor() {
     this.client = new Client({
-      contactPoints: ['localhost'],
-      localDataCenter: 'datacenter1',
+      contactPoints: [process.env['CASSANDRA_CONTACT_POINTS'] || 'localhost'],
+      localDataCenter:
+        process.env['CASSANDRA_LOCAL_DATA_CENTER'] || 'datacenter1',
     });
   }
 

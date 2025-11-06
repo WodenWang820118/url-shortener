@@ -1,26 +1,5 @@
-# Stage 1: Builder
-FROM node:18-alpine AS builder
-
-WORKDIR /app
-
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/consumer/package.json ./apps/consumer/
-
-# Install pnpm
-RUN npm install -g pnpm
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source code
-COPY . .
-
-# Build the consumer app
-RUN pnpm nx build consumer --configuration=production
-
-# Stage 2: Production
-FROM node:18-alpine
+# Production image - assumes build is done locally
+FROM node:22-alpine
 
 WORKDIR /app
 
@@ -29,13 +8,12 @@ RUN npm install -g pnpm
 
 # Copy package files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/consumer/package.json ./apps/consumer/
 
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile
 
-# Copy built application
-COPY --from=builder /app/dist/apps/consumer ./dist/apps/consumer
+# Copy pre-built application (build locally first with: pnpm nx build consumer --configuration=production)
+COPY dist/apps/consumer ./dist/apps/consumer
 
 # Expose port
 EXPOSE 3002
