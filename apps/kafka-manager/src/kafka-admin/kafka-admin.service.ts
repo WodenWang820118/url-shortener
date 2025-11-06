@@ -59,10 +59,19 @@ export class KafkaAdminService
         'Creating default topics...',
         `${KafkaAdminService.name}.${KafkaAdminService.prototype.createTopic.name}`,
       );
-      await this.createTopic(
-        this.configService.get<string>('KAFKA_TOPIC'),
-        this.configService.get<number>('KAFKA_PARTITIONS'),
-      );
+      const topic =
+        this.configService.get<string>('KAFKA_TOPIC') || 'default_topic';
+      const partitions =
+        this.configService.get<number>('KAFKA_PARTITIONS') || 3;
+
+      if (topic === 'default_topic') {
+        Logger.warn(
+          'KAFKA_TOPIC not set in .env, using default: "default_topic"',
+          `${KafkaAdminService.name}.${KafkaAdminService.prototype.createTopics.name}`,
+        );
+      }
+
+      await this.createTopic(topic, partitions);
     } catch (error) {
       Logger.error(
         error,

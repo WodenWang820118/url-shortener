@@ -1,0 +1,108 @@
+services:
+  # Zookeeper for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - '2181:2181'
+    networks:
+      - url-shortener-network
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - '9092:9092'
+      - '9093:9093'
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    networks:
+      - url-shortener-network
+
+  # Cassandra
+  cassandra:
+    image: cassandra:4.1
+    container_name: cassandra
+    ports:
+      - '9042:9042'
+    environment:
+      - CASSANDRA_CLUSTER_NAME=url-shortener-cluster
+      - CASSANDRA_DC=datacenter1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=128M
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    healthcheck:
+      test: ['CMD-SHELL', "cqlsh -e 'describe cluster'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    networks:
+      - url-shortener-network
+
+  # HDFS NameNode
+  namenode:
+    image: apache/hadoop:3.3.6
+    container_name: namenode
+    hostname: namenode
+    ports:
+      - '9870:9870' # NameNode Web UI
+      - '9000:9000' # NameNode RPC
+    environment:
+      - CLUSTER_NAME=url-shortener-cluster
+      - HADOOP_HOME=/opt/hadoop
+    command: ['hdfs', 'namenode']
+    volumes:
+      - namenode-data:/opt/hadoop/dfs/name
+      - ./hadoop-config:/opt/hadoop/etc/hadoop
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:9870 || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - url-shortener-network
+
+  # HDFS DataNode
+  datanode:
+    image: apache/hadoop:3.3.6
+    container_name: datanode
+    hostname: datanode
+    depends_on:
+      - namenode
+    ports:
+      - '9864:9864' # DataNode Web UI
+      - '9866:9866' # DataNode data transfer
+    environment:
+      - CLUSTER_NAME=url-shortener-cluster
+      - HADOOP_HOME=/opt/hadoop
+    command: ['hdfs', 'datanode']
+    volumes:
+      - datanode-data:/opt/hadoop/dfs/data
+      - ./hadoop-config:/opt/hadoop/etc/hadoop
+    networks:
+      - url-shortener-network
+
+volumes:
+  cassandra-data:
+  namenode-data:
+  datanode-data:
+
+networks:
+  url-shortener-network:
+    driver: bridge

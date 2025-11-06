@@ -2,7 +2,7 @@ const { withNx } = require('@nx/rspack');
 const { composePlugins } = require('@nx/rspack');
 
 
-// Nx plugins for webpack.
+// Nx plugins for rspack.
 const config = composePlugins(
   withNx({
     optimization: true,
