@@ -42,11 +42,54 @@ export class ConsumerService implements OnModuleInit {
         'INSERT INTO examples.shortened_urls (url_id, original_url, created_at) VALUES (?, ?, ?)',
         [url_id, original_url, created_at],
       );
+      Logger.log(
+        `Successfully saved to Cassandra: ${url_id} -> ${original_url}`,
+        `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
+      );
       return 'Message processed';
     } catch (error) {
       Logger.error(
         error,
         `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
+      );
+      throw error;
+    }
+  }
+
+  async getAllUrls() {
+    try {
+      const result = await this.cassandraService.execute(
+        'SELECT * FROM examples.shortened_urls',
+      );
+      return {
+        count: result.rowLength,
+        urls: result.rows.map((row) => ({
+          url_id: row.url_id,
+          original_url: row.original_url,
+          created_at: row.created_at,
+        })),
+      };
+    } catch (error) {
+      Logger.error(
+        error,
+        `${ConsumerService.name}.${ConsumerService.prototype.getAllUrls.name}`,
+      );
+      throw error;
+    }
+  }
+
+  async getUrlCount() {
+    try {
+      const result = await this.cassandraService.execute(
+        'SELECT COUNT(*) as count FROM examples.shortened_urls',
+      );
+      return {
+        count: result.first()?.count?.toNumber() || 0,
+      };
+    } catch (error) {
+      Logger.error(
+        error,
+        `${ConsumerService.name}.${ConsumerService.prototype.getUrlCount.name}`,
       );
       throw error;
     }

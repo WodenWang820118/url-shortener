@@ -1,0 +1,121 @@
+<div class="min-h-screen flex items-center justify-center p-4">
+  <p-toast />
+
+  <p-card class="w-full max-w-2xl shadow-2xl">
+    <ng-template pTemplate="header">
+      <div class="text-center py-4">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          <i class="pi pi-link mr-3"></i>URL Shortener
+        </h1>
+        <p class="text-gray-600 text-lg">
+          Transform long URLs into short, shareable links
+        </p>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content">
+      <form (ngSubmit)="onSubmit()" class="space-y-4">
+        <div class="flex flex-col sm:flex-row gap-3">
+          <p-floatlabel class="flex-1">
+            <input
+              pInputText
+              id="longUrl"
+              [(ngModel)]="longUrl"
+              name="longUrl"
+              [disabled]="state.isLoading()"
+              class="w-full"
+              placeholder="Enter your long URL here..."
+            />
+            <label for="longUrl">Long URL</label>
+          </p-floatlabel>
+
+          <p-button
+            type="submit"
+            [label]="state.isLoading() ? 'Shortening...' : 'Shorten URL'"
+            icon="pi pi-link"
+            [loading]="state.isLoading()"
+            [disabled]="state.isLoading()"
+            severity="primary"
+            styleClass="whitespace-nowrap"
+          />
+        </div>
+
+        @if (state.errorMessage()) {
+          <p-message
+            severity="error"
+            [text]="state.errorMessage()!"
+            styleClass="w-full"
+          />
+        }
+      </form>
+
+      @if (state.shortenedUrl()) {
+        <div
+          class="mt-8 pt-6 border-t border-gray-200 space-y-4 animate-fade-in"
+        >
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+            <i class="pi pi-check-circle text-green-500 mr-2"></i>
+            Your Shortened URL
+          </h2>
+
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              pInputText
+              [value]="state.shortenedUrl()!"
+              readonly
+              class="flex-1 font-mono text-sm"
+            />
+            <p-button
+              label="Copy"
+              icon="pi pi-copy"
+              (onClick)="copyToClipboard()"
+              severity="secondary"
+              outlined
+            />
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <p-button
+              [label]="state.showQrCode() ? 'Hide QR Code' : 'Show QR Code'"
+              [icon]="state.showQrCode() ? 'pi pi-eye-slash' : 'pi pi-qrcode'"
+              (onClick)="toggleQrCode()"
+              severity="secondary"
+              outlined
+            />
+            <p-button
+              label="Shorten Another"
+              icon="pi pi-plus"
+              (onClick)="reset()"
+              severity="secondary"
+              outlined
+            />
+          </div>
+
+          @if (state.showQrCode() && state.shortenedUrl()) {
+            <div
+              class="mt-6 p-6 bg-gray-50 rounded-lg text-center animate-fade-in"
+            >
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                <i class="pi pi-qrcode mr-2"></i>QR Code
+              </h3>
+              <div class="inline-block bg-white p-4 rounded-lg shadow-md">
+                <qrcode
+                  [qrdata]="state.shortenedUrl()!"
+                  [width]="256"
+                  [errorCorrectionLevel]="'M'"
+                ></qrcode>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="text-center text-sm text-gray-500">
+        <i class="pi pi-info-circle mr-1"></i>
+        Powered by Angular, PrimeNG, and TailwindCSS
+      </div>
+    </ng-template>
+  </p-card>
+</div>
