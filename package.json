@@ -6,7 +6,8 @@
     "dev:kafka-manager": "nx serve kafka-manager --watch",
     "dev:producer": "nx serve producer --watch",
     "dev:consumer": "nx serve consumer --watch",
-    "dev:frontend": "nx serve frontend"
+    "dev:frontend": "nx serve frontend",
+    "dev:backend": "concurrently \"nx serve producer --watch\" \"nx serve consumer --watch\" --names \"producer,consumer\" --prefix-colors \"blue,green\""
   },
   "keywords": [],
   "author": "",
@@ -33,6 +34,8 @@
     "angularx-qrcode": "^20.0.0",
     "axios": "^1.13.2",
     "cassandra-driver": "^4.8.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "kafkajs": "^2.2.4",
     "postcss": "^8.5.6",
     "primeicons": "^7.0.0",
