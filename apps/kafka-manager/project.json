@@ -5,17 +5,18 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
+      "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
-        "compiler": "tsc",
+        "compiler": "swc",
         "outputPath": "dist/apps/kafka-manager",
         "main": "apps/kafka-manager/src/main.ts",
         "tsConfig": "apps/kafka-manager/tsconfig.app.json",
         "generatePackageJson": true,
-        "webpackConfig": "apps/kafka-manager/webpack.config.js"
+        "rspackConfig": "apps/kafka-manager/rspack.config.cjs",
+        "outputHashing": "none"
       },
       "configurations": {
         "development": {},

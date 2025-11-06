@@ -5,17 +5,18 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/webpack:webpack",
+      "executor": "@nx/rspack:rspack",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
         "target": "node",
-        "compiler": "tsc",
+        "compiler": "swc",
         "outputPath": "dist/apps/producer",
         "main": "apps/producer/src/main.ts",
         "tsConfig": "apps/producer/tsconfig.app.json",
         "generatePackageJson": true,
-        "webpackConfig": "apps/producer/webpack.config.js"
+        "rspackConfig": "apps/producer/rspack.config.cjs",
+        "outputHashing": "none"
       },
       "configurations": {
         "development": {},
