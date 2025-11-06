@@ -12,6 +12,11 @@
     },
     "test:watch": {
       "cache": true
+    },
+    "@angular/build:application": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["default", "^default"]
     }
   },
   "defaultBase": "main",
@@ -45,5 +50,13 @@
       }
     },
     "@nx/maven"
-  ]
+  ],
+  "generators": {
+    "@nx/angular:application": {
+      "e2eTestRunner": "none",
+      "linter": "eslint",
+      "style": "css",
+      "unitTestRunner": "vitest"
+    }
+  }
 }
