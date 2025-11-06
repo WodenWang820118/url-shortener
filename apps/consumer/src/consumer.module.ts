@@ -5,11 +5,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { HdfsModule } from './hdfs/hdfs.module';
 import { CassandraModule } from './cassandra/cassandra.module';
 import { CassandraService } from './cassandra/cassandra.service';
+import { MetricsModule } from './metrics/metrics.module';
 
 @Module({
   imports: [
     HdfsModule,
     CassandraModule,
+    MetricsModule,
     ClientsModule.register([
       {
         name: 'EXAMPLE_SERVICE',

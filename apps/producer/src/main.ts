@@ -10,7 +10,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({});
 
   await app.startAllMicroservices();
-  await app.listen(9002);
-  logger.log('Producer service is listening on port 9002');
+  await app.listen(3001);
+  logger.log('Producer service is listening on port 3001');
 }
 bootstrap();

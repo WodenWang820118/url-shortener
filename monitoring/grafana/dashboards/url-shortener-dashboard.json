@@ -1,0 +1,187 @@
+{
+  "title": "URL Shortener Performance Dashboard",
+  "tags": ["url-shortener", "kafka", "cassandra"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "refresh": "5s",
+  "panels": [
+    {
+      "id": 1,
+      "type": "graph",
+      "title": "Kafka Message Processing Rate",
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(kafka_messages_processed_total[1m])",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "yaxes": [
+        { "format": "short", "label": "messages/sec" },
+        { "format": "short" }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "graph",
+      "title": "Cassandra Query Rate",
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(cassandra_queries_total[1m])",
+          "legendFormat": "{{operation}} - {{status}}"
+        }
+      ],
+      "yaxes": [
+        { "format": "short", "label": "queries/sec" },
+        { "format": "short" }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "graph",
+      "title": "Kafka Message Processing Latency (p95)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(kafka_message_processing_duration_seconds_bucket[1m]))",
+          "legendFormat": "p95 {{status}}"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(kafka_message_processing_duration_seconds_bucket[1m]))",
+          "legendFormat": "p50 {{status}}"
+        }
+      ],
+      "yaxes": [{ "format": "s", "label": "latency" }, { "format": "short" }]
+    },
+    {
+      "id": 4,
+      "type": "graph",
+      "title": "Cassandra Query Latency (p95)",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(cassandra_query_duration_seconds_bucket[1m]))",
+          "legendFormat": "p95 {{operation}}"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(cassandra_query_duration_seconds_bucket[1m]))",
+          "legendFormat": "p50 {{operation}}"
+        }
+      ],
+      "yaxes": [{ "format": "s", "label": "latency" }, { "format": "short" }]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Total Records in Cassandra",
+      "gridPos": { "x": 0, "y": 16, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "cassandra_record_count"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Error Rate",
+      "gridPos": { "x": 6, "y": 16, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "rate(kafka_messages_processed_total{status=\"error\"}[5m])"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 1, "color": "yellow" },
+              { "value": 10, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "stat",
+      "title": "Messages Processed (5m)",
+      "gridPos": { "x": 12, "y": 16, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "increase(kafka_messages_processed_total{status=\"success\"}[5m])"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "auto"
+      }
+    },
+    {
+      "id": 8,
+      "type": "stat",
+      "title": "Cassandra Errors",
+      "gridPos": { "x": 18, "y": 16, "w": 6, "h": 4 },
+      "targets": [
+        {
+          "expr": "rate(cassandra_query_errors_total[5m])"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": 0, "color": "green" },
+              { "value": 1, "color": "yellow" },
+              { "value": 10, "color": "red" }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "graph",
+      "title": "Throughput Comparison",
+      "gridPos": { "x": 0, "y": 20, "w": 24, "h": 8 },
+      "targets": [
+        {
+          "expr": "rate(kafka_messages_processed_total{status=\"success\"}[1m])",
+          "legendFormat": "Message Processing Rate"
+        },
+        {
+          "expr": "rate(cassandra_queries_total{operation=\"insert\",status=\"success\"}[1m])",
+          "legendFormat": "Cassandra Insert Rate"
+        },
+        {
+          "expr": "rate(cassandra_queries_total{operation=\"select_all\",status=\"success\"}[1m])",
+          "legendFormat": "Cassandra Read Rate"
+        }
+      ],
+      "yaxes": [
+        { "format": "short", "label": "ops/sec" },
+        { "format": "short" }
+      ]
+    }
+  ]
+}

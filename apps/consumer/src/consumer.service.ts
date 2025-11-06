@@ -2,6 +2,7 @@ import { Injectable, Inject, OnModuleInit, Logger } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { HdfsService } from './hdfs/hdfs.service';
 import { CassandraService } from './cassandra/cassandra.service';
+import { MetricsService } from './metrics/metrics.service';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit {
@@ -10,6 +11,7 @@ export class ConsumerService implements OnModuleInit {
     @Inject('EXAMPLE_SERVICE') private readonly kafkaClient: ClientKafka,
     private readonly hdfsService: HdfsService,
     private readonly cassandraService: CassandraService,
+    private readonly metricsService: MetricsService,
   ) {}
 
   async onModuleInit() {
@@ -21,6 +23,8 @@ export class ConsumerService implements OnModuleInit {
   }
 
   async processMessage(message: any) {
+    const endTimer = this.metricsService.kafkaProcessingDuration.startTimer();
+
     try {
       const { url_id, original_url } = message;
       const created_at = new Date();
@@ -38,29 +42,61 @@ export class ConsumerService implements OnModuleInit {
         `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
       );
 
+      const queryEndTimer =
+        this.metricsService.cassandraQueryDuration.startTimer({
+          operation: 'insert',
+        });
+
       await this.cassandraService.execute(
         'INSERT INTO examples.shortened_urls (url_id, original_url, created_at) VALUES (?, ?, ?)',
         [url_id, original_url, created_at],
       );
+
+      queryEndTimer();
+      this.metricsService.cassandraQueriesTotal.inc({
+        operation: 'insert',
+        status: 'success',
+      });
+
       Logger.log(
         `Successfully saved to Cassandra: ${url_id} -> ${original_url}`,
         `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
       );
+
+      this.metricsService.kafkaMessagesProcessed.inc({ status: 'success' });
+      endTimer({ status: 'success' });
+
       return 'Message processed';
     } catch (error) {
       Logger.error(
         error,
         `${ConsumerService.name}.${ConsumerService.prototype.processMessage.name}`,
       );
+
+      this.metricsService.kafkaMessagesProcessed.inc({ status: 'error' });
+      this.metricsService.cassandraQueryErrors.inc({ operation: 'insert' });
+      endTimer({ status: 'error' });
+
       throw error;
     }
   }
 
   async getAllUrls() {
+    const queryEndTimer = this.metricsService.cassandraQueryDuration.startTimer(
+      { operation: 'select_all' },
+    );
+
     try {
       const result = await this.cassandraService.execute(
         'SELECT * FROM examples.shortened_urls',
       );
+
+      queryEndTimer();
+      this.metricsService.cassandraQueriesTotal.inc({
+        operation: 'select_all',
+        status: 'success',
+      });
+
       return {
         count: result.rowLength,
         urls: result.rows.map((row) => ({
@@ -70,6 +106,9 @@ export class ConsumerService implements OnModuleInit {
         })),
       };
     } catch (error) {
+      queryEndTimer();
+      this.metricsService.cassandraQueryErrors.inc({ operation: 'select_all' });
+
       Logger.error(
         error,
         `${ConsumerService.name}.${ConsumerService.prototype.getAllUrls.name}`,
@@ -79,14 +118,31 @@ export class ConsumerService implements OnModuleInit {
   }
 
   async getUrlCount() {
+    const queryEndTimer = this.metricsService.cassandraQueryDuration.startTimer(
+      { operation: 'count' },
+    );
+
     try {
       const result = await this.cassandraService.execute(
         'SELECT COUNT(*) as count FROM examples.shortened_urls',
       );
-      return {
-        count: result.first()?.count?.toNumber() || 0,
-      };
+
+      queryEndTimer();
+      this.metricsService.cassandraQueriesTotal.inc({
+        operation: 'count',
+        status: 'success',
+      });
+
+      const count = result.first()?.count?.toNumber() || 0;
+
+      // Update the gauge with current count
+      this.metricsService.cassandraRecordCount.set(count);
+
+      return { count };
     } catch (error) {
+      queryEndTimer();
+      this.metricsService.cassandraQueryErrors.inc({ operation: 'count' });
+
       Logger.error(
         error,
         `${ConsumerService.name}.${ConsumerService.prototype.getUrlCount.name}`,
